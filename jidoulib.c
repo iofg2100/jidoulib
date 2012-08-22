@@ -1,6 +1,8 @@
 
 #include <avr/io.h>
 
+
+
 void usartInit()
 {
 	UBRR0L = 27;
@@ -41,7 +43,40 @@ uint8_t adConversionGet(uint8_t pin)
 	return ADCH;
 }
 
+uint8_t rotaryGet(JL_DIRECTION dir)
+{
+	switch (dir)
+	{
+		case JL_RIGHT:
+			return PINB & 0b11;
+		case JL_LEFT:
+			return PINB & 0b1100 >> 2;
+		default:
+			return 0;
+	}
+}
 
+void motorSetDuty(JL_DIRECTION dir, uint8_t ratio)
+{
+}
 
+void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state)
+{
+	uint8_t temp;
+	
+	switch (dir)
+	{
+		case JL_RIGHT:
+		{
+			
+		}	
+		case JL_LEFT:
+		{
+			
+		}
+		default:
+			return;
+	}
+}
 
 

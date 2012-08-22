@@ -32,11 +32,26 @@
 	PWMは20kHzまで
 */
 
+/**
+	右or左
+*/
 typedef enum
 {
 	JL_RIGHT,
 	JL_LEFT
 } JL_DIRECTION;
+
+/**
+	モーターの状態
+*/
+typedef enum
+{
+	JL_FORWARD = 0b00,
+	JL_BACKWARD = 0b11,
+	JL_HALT = 0b01,
+	JL_BRAKE = 0b10
+} JL_MOTOR_STATE;
+
 
 /**
 	USART初期化
@@ -63,7 +78,12 @@ uint8_t adConversionGet(uint8_t pin);
 
 /**
 	ロータリーエンコーダーの値を取得
+	@param dir 右or左
 */
 uint8_t rotaryGet(JL_DIRECTION dir);
+
+
+void motorSetDuty(JL_DIRECTION dir, uint8_t ratio);
+void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state);
 
 #endif
