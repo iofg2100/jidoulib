@@ -1,8 +1,6 @@
 
 #include <avr/io.h>
 
-
-
 void usartInit()
 {
 	UBRR0L = 27;
@@ -68,11 +66,17 @@ void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state)
 	{
 		case JL_RIGHT:
 		{
-			
+			temp = PORTB;
+			temp &= 0xFF - 0b110000;
+			temp |= state << 4;
+			PORTB = temp;
 		}	
 		case JL_LEFT:
 		{
-			
+			temp = PORTD;
+			temp &= 0xFF - 0b1100;
+			temp |= state << 2;
+			PORTD = temp;
 		}
 		default:
 			return;
