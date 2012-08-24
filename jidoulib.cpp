@@ -17,6 +17,15 @@ uint8_t setBits(uint8_t dst, uint8_t src)
 	return result;
 }
 
+
+void jidou1Init()
+{
+}
+
+void jidou2Init()
+{
+}
+
 void usartInit()
 {
 	UBRR0L = 27;
@@ -52,6 +61,14 @@ uint8_t adConversionGet(uint8_t pin)
 	while (ADCSRA & (1 << ADIF));
 	
 	return ADCH;
+}
+
+/**
+	ロータリーエンコーダーの割り込み用
+*/
+void rotaryOnSignalChanged()
+{
+	
 }
 
 uint8_t rotaryGet(JL_DIRECTION dir)

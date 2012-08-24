@@ -54,6 +54,16 @@ typedef enum
 
 
 /**
+	自動機1初期化
+*/
+void jidou1Init();
+
+/**
+	自動機2初期化
+*/
+void jidou2Init();
+
+/**
 	USART初期化
 */
 void usartInit();
