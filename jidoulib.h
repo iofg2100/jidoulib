@@ -91,7 +91,7 @@ void motorInit();
 /**
 	モーターのデューティ比を設定
 	@param dir 右or左
-	@param ratio デューティ比(0..255)
+	@param ratio デューティ比 (0..255)
 */
 void motorSetDuty(JL_DIRECTION dir, uint8_t ratio);
 
@@ -101,5 +101,18 @@ void motorSetDuty(JL_DIRECTION dir, uint8_t ratio);
 	@param state モーターの状態
 */
 void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state);
+
+
+
+/**
+	サーボモータの初期化
+*/
+void servoInit();
+
+/**
+	サーボモータの位相を設定
+	@param phase 位相 (0..255)
+*/
+void servoSetPhase(uint8_t phase);
 
 #endif

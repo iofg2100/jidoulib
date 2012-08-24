@@ -34,7 +34,7 @@ void usartPut(uint8_t data)
 void adConversionInit()
 {
 	ADMUX = 0b01100000;
-	ADCSRA = 0b10000111;
+	ADCSRA = 0b10000111;	// ADCイネーブル、プリスケーラ設定
 	ADCSRB = 0;
 }
 
@@ -77,7 +77,7 @@ void motorInit()
 	// タイマ0の初期化
 	TCCR0B = 0b101;	// クロック/1024Hz
 	TCNT0 = 0;	// カウンタ初期化
-	TCCR0A = 0b10100011;
+	TCCR0A = 0b10100011 // OCO*を使用;
 	
 	OCR0A = 0;
 	OCR0B = 0;
@@ -100,8 +100,6 @@ void motorSetDuty(JL_DIRECTION dir, uint8_t ratio)
 
 void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state)
 {
-	uint8_t temp;
-	
 	switch (dir)
 	{
 		case JL_RIGHT:
@@ -115,4 +113,19 @@ void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state)
 	}
 }
 
+void servoInit()
+{
+	// 高速PWM 8bit
+	TCCR1A = 0b10000001;
+	TCCR1B = 0b00001101;
+	
+	TCNT1H = 0;
+	TCNT1L = 0;
+	OCR1AL = 0;
+}
+
+void servoSetPhase(uint8_t phase)
+{
+	OCR1AL = phase;
+}
 
