@@ -83,7 +83,23 @@ uint8_t adConversionGet(uint8_t pin);
 uint8_t rotaryGet(JL_DIRECTION dir);
 
 
+/**
+	モーターの初期化 (タイマ0など)
+*/
+void motorInit();
+
+/**
+	モーターのデューティ比を設定
+	@param dir 右or左
+	@param ratio デューティ比(0..255)
+*/
 void motorSetDuty(JL_DIRECTION dir, uint8_t ratio);
+
+/**
+	モーターの状態を設定
+	@param dir 右or左
+	@param state モーターの状態
+*/
 void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state);
 
 #endif

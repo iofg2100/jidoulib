@@ -1,6 +1,22 @@
 
 #include <avr/io.h>
 
+template <int Width, int Shift>
+uint8_t setBits(uint8_t dst, uint8_t src)
+{
+	uint8_t result;
+	for (int i = 0; i < Width; ++i)
+	{
+		result |= 1 << i;
+	}
+	result << src;
+	result = ~result;
+	
+	result &= dst;
+	result |= src << Shift;
+	return result;
+}
+
 void usartInit()
 {
 	UBRR0L = 27;
@@ -24,10 +40,7 @@ void adConversionInit()
 
 static void adConversionSetPin(uint8_t pin)
 {
-	uint8_t tmp = ADMUX;
-	tmp &= 0xF0;
-	tmp |= pin;
-	ADMUX = tmp;
+	ADMUX = setBits<4, 0>(ADMUX, pin);
 }
 
 uint8_t adConversionGet(uint8_t pin)
@@ -43,19 +56,46 @@ uint8_t adConversionGet(uint8_t pin)
 
 uint8_t rotaryGet(JL_DIRECTION dir)
 {
+	uint8_t result;
+	
 	switch (dir)
 	{
 		case JL_RIGHT:
-			return PINB & 0b11;
+			result = PINB & 0b11;
 		case JL_LEFT:
-			return PINB & 0b1100 >> 2;
+			result = PINB & 0b1100 >> 2;
 		default:
 			return 0;
 	}
+	
+	result |= 0b11;
+	return result;
+}
+
+void motorInit()
+{
+	// タイマ0の初期化
+	TCCR0B = 0b101;	// クロック/1024Hz
+	TCNT0 = 0;	// カウンタ初期化
+	TCCR0A = 0b10100011;
+	
+	OCR0A = 0;
+	OCR0B = 0;
 }
 
 void motorSetDuty(JL_DIRECTION dir, uint8_t ratio)
 {
+	swtch (dir)
+	{
+		case JL_RIGHT:
+			OCR0A = ratio;
+			break;
+		case JL_LEFT:
+			OCR0B = ratio;
+			break;
+		default:
+			break;
+	}
 }
 
 void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state)
@@ -65,19 +105,11 @@ void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state)
 	switch (dir)
 	{
 		case JL_RIGHT:
-		{
-			temp = PORTB;
-			temp &= 0xFF - 0b110000;
-			temp |= state << 4;
-			PORTB = temp;
-		}	
+			PORTB = setBits<2, 4>(PORTB, state);
+			break;
 		case JL_LEFT:
-		{
-			temp = PORTD;
-			temp &= 0xFF - 0b1100;
-			temp |= state << 2;
-			PORTD = temp;
-		}
+			PORTD = setBits<2, 2>(PORTD, state);
+			break;
 		default:
 			return;
 	}
