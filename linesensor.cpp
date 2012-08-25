@@ -8,7 +8,7 @@ void lineSensorReadAnalogValue(uint8_t *array)
 		array[i] = adConversionGet(i);
 }
 
-void bubble_sort(uint8_t *array, int count)
+static void bubble_sort(uint8_t *array, int count)
 {
 	for (int i = 0; i < count; ++i)
 	{
@@ -24,7 +24,7 @@ void bubble_sort(uint8_t *array, int count)
 	}
 }
 
-uint8_t get_max(uint8_t *array, int count, int *maxIndex)
+static uint8_t get_max(uint8_t *array, int count, int *maxIndex)
 {
 	uint8_t max = array[0];
 	*maxIndex = 0;
@@ -60,6 +60,18 @@ void lineSensorSetThreshold()
 
 uint8_t lineSensorGet()
 {
+	uint8_t values[5];
+	lineSensorReadAnalogValue(values);
+	
+	uint8_t result = 0;
+	
+	for (int i = 0; i < 5; ++i)
+	{
+		if (values[i] > lineSensorThreshold)
+			result += 1 << i;
+	}
+	
+	return result;
 }
 
 uint8_t lineSensorThreshold;

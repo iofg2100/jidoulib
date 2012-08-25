@@ -1,5 +1,7 @@
 
 #include "jidoulib.h"
+#include "linesensor.h"
+
 #include "tracer.h"
 
 #define MOTION_WAIT_MS 10

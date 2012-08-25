@@ -11,9 +11,6 @@ void tracerBackward();
 void tracerGoToNextCross();
 void tracerTurnInCross(JL_DIRECTION dir);
 
-void lineSensorReinit();
-uint8_t lineSensorGet();
-
 typedef enum
 {
 	TRACER_LINE,
