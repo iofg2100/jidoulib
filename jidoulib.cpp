@@ -1,15 +1,16 @@
 
 #include <avr/io.h>
+#include "jidoulib.h"
 
 template <int Width, int Shift>
 uint8_t setBits(uint8_t dst, uint8_t src)
 {
-	uint8_t result;
+	uint8_t result = 0;
 	for (int i = 0; i < Width; ++i)
 	{
-		result |= 1 << i;
+		result |= (1 << i);
 	}
-	result << src;
+	result <<= Shift;
 	result = ~result;
 	
 	result &= dst;
@@ -28,10 +29,10 @@ void jidou2Init()
 
 void usartInit()
 {
-	UBRR0L = 27;
+	UBRR0L = 25;
 	UBRR0H = 0;
-	UCSR0C = (1 << UCSZ01) + (1 << UCSZ00);
-	UCSR0B = (1 << RXEN0) + (1 << TXEN0);
+	UCSR0C |= (1 << UCSZ01) + (1 << UCSZ00);
+	UCSR0B |= (1 << RXEN0) + (1 << TXEN0);
 }
 
 void usartPut(uint8_t data)
@@ -94,7 +95,7 @@ void motorInit()
 	// タイマ0の初期化
 	TCCR0B = 0b101;	// クロック/1024Hz
 	TCNT0 = 0;	// カウンタ初期化
-	TCCR0A = 0b10100011 // OCO*を使用;
+	TCCR0A = 0b10100011; // OCO*を使用;
 	
 	OCR0A = 0;
 	OCR0B = 0;
@@ -102,7 +103,7 @@ void motorInit()
 
 void motorSetDuty(JL_DIRECTION dir, uint8_t ratio)
 {
-	swtch (dir)
+	switch (dir)
 	{
 		case JL_RIGHT:
 			OCR0A = ratio;

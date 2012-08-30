@@ -113,6 +113,10 @@ void motorSetDuty(JL_DIRECTION dir, uint8_t ratio);
 void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state);
 
 
+/**
+	パルス幅 1.5ms+/-角度分
+	バルス周期 20ms
+*/
 
 /**
 	サーボモータの初期化
