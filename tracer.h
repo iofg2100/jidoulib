@@ -3,10 +3,17 @@
 
 #include "stdint.h"
 
-void tracerTurn(JL_DIRECTION dir);
+/**
+  ライントレーサを旋回させる
+*/
+void tracerTurn(JL_DIRECTION dir, unsigned ms);
 
-void tracerForward();
-void tracerBackward();
+int tracerGetOffset(uint8_t sensorValue);
+
+void tracerStop();
+
+void tracerForward(unsigned ms);
+void tracerBackward(unsigned ms);
 
 void tracerGoToNextCross();
 void tracerTurnInCross(JL_DIRECTION dir);

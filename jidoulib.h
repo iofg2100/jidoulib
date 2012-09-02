@@ -1,14 +1,18 @@
 #ifndef JIDOULIB_H
 #define	JIDOULIB_H
 
+#include <avr/io.h>
+#include <util/delay.h>
 #include <stdint.h>
 
 /**
 	ピン配置
 	
 	ADC0~4 : ラインセンサ1~5
-	PB0, PB1 エンコーダ1
-	PB2, PB3 エンコーダ2
+	
+	PB0 : スイッチ
+	OC1A : サーボモータ用PWM
+	PB2, PB3 : モータドライバ
 	
 	モータドライバ
 	
@@ -21,13 +25,6 @@
 	PD3 : DIRB2
 	
 	PD4 : スイッチ
-	
-	
-	自動機2専用
-	
-	PB0 : スイッチ
-	OC1A : サーボモータ用PWM
-	PB2, PB3 : モータドライバ
 	
 	PWMは20kHzまで
 */
@@ -87,13 +84,6 @@ void adConversionInit();
 uint8_t adConversionGet(uint8_t pin);
 
 /**
-	ロータリーエンコーダーの値を取得
-	@param dir 右or左
-*/
-uint8_t rotaryGet(JL_DIRECTION dir);
-
-
-/**
 	モーターの初期化 (タイマ0など)
 */
 void motorInit();
@@ -128,5 +118,7 @@ void servoInit();
 	@param phase 位相 (0..255)
 */
 void servoSetPhase(uint8_t phase);
+
+void delayMs(unsigned ms);
 
 #endif

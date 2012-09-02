@@ -1,18 +1,19 @@
 #include "jidoulib.h"
 #include "linesensor.h"
 
+uint8_t lineSensorThreshold;
 
 void lineSensorReadAnalogValue(uint8_t *array)
 {
-	for (int i = 0; i < 5; ++i)
+	for (unsigned i = 0; i < 5; ++i)
 		array[i] = adConversionGet(i);
 }
 
-static void bubble_sort(uint8_t *array, int count)
+static void bubble_sort(uint8_t *array, unsigned count)
 {
-	for (int i = 0; i < count; ++i)
+	for (unsigned i = 0; i < count; ++i)
 	{
-		for (int j = count - 1; j > i; --j)
+		for (unsigned j = count - 1; j > i; --j)
 		{
 			if (array[j] < array[j-1])
 			{
@@ -24,12 +25,12 @@ static void bubble_sort(uint8_t *array, int count)
 	}
 }
 
-static uint8_t get_max(uint8_t *array, int count, int *maxIndex)
+static uint8_t get_max(uint8_t *array, unsigned count, unsigned *maxIndex)
 {
 	uint8_t max = array[0];
 	*maxIndex = 0;
 
-	for (int i = 1; i < count; ++i)
+	for (unsigned i = 1; i < count; ++i)
 	{
 		uint8_t value = array[i];
 		if (max < value)
@@ -49,10 +50,10 @@ void lineSensorSetThreshold()
 	bubble_sort(values, 5);
 	
 	uint8_t diffs[4];	// 差分を計算する
-	for (int i = 0; i < 4; ++i)
+	for (unsigned i = 0; i < 4; ++i)
 		diffs[i] = values[i+i] - values[i];
 	
-	int maxIndex;
+	unsigned maxIndex;
 	uint8_t maxDiff = get_max(diffs, 4, &maxIndex);	// 差分の最大値とそのインデックスを取得
 	
 	lineSensorThreshold = values[maxIndex] + maxDiff / 2;	//閾値っぽい値を計算
@@ -65,7 +66,7 @@ uint8_t lineSensorGet()
 	
 	uint8_t result = 0;
 	
-	for (int i = 0; i < 5; ++i)
+	for (unsigned i = 0; i < 5; ++i)
 	{
 		if (values[i] > lineSensorThreshold)
 			result += 1 << i;
@@ -74,4 +75,4 @@ uint8_t lineSensorGet()
 	return result;
 }
 
-uint8_t lineSensorThreshold;
+

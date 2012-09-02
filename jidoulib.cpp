@@ -1,12 +1,11 @@
 
-#include <avr/io.h>
 #include "jidoulib.h"
 
-template <int Width, int Shift>
+template <unsigned Width, unsigned Shift>
 uint8_t setBits(uint8_t dst, uint8_t src)
 {
 	uint8_t result = 0;
-	for (int i = 0; i < Width; ++i)
+	for (unsigned i = 0; i < Width; ++i)
 	{
 		result |= (1 << i);
 	}
@@ -64,32 +63,6 @@ uint8_t adConversionGet(uint8_t pin)
 	return ADCH;
 }
 
-/**
-	ロータリーエンコーダーの割り込み用
-*/
-void rotaryOnSignalChanged()
-{
-	
-}
-
-uint8_t rotaryGet(JL_DIRECTION dir)
-{
-	uint8_t result;
-	
-	switch (dir)
-	{
-		case JL_RIGHT:
-			result = PINB & 0b11;
-		case JL_LEFT:
-			result = PINB & 0b1100 >> 2;
-		default:
-			return 0;
-	}
-	
-	result |= 0b11;
-	return result;
-}
-
 void motorInit()
 {
 	// タイマ0の初期化
@@ -145,5 +118,11 @@ void servoInit()
 void servoSetPhase(uint8_t phase)
 {
 	OCR1AL = phase;
+}
+
+void delayMs(unsigned ms)
+{
+	while (ms--)
+		_delay_ms(1);
 }
 

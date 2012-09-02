@@ -1,12 +1,34 @@
-
 #include "jidoulib.h"
 #include "linesensor.h"
 
 #include "tracer.h"
 
-#define MOTION_WAIT_MS 10
 
-void tracerTurn(JL_DIRECTION dir)
+uint8_t tracerSensorState;
+
+int tracerGetOffset(uint8_t sensorValue)
+{
+	int sum = 0;
+	unsigned onLineCount = 0;
+	
+	for (unsigned i = 0; i < 5; ++i)
+	{
+		if (sensorValue & (1 << i))
+		{
+			sum += 16 * (int(i) - 2);
+			onLineCount++;
+		}
+	}
+	
+	return sum / onLineCount;
+}
+
+inline bool tracerAllSensorsOnLine(uint8_t sensorValue)
+{
+	return sensorValue == 0b11111;
+}
+
+void tracerTurn(JL_DIRECTION dir, unsigned ms)
 {
 	switch (dir)
 	{
@@ -21,68 +43,60 @@ void tracerTurn(JL_DIRECTION dir)
 		default:
 			break;
 	}
-	delay_ms(MOTION_WAIT_MS);
-	tracerLineSensorState = lineSensorGet();
+	delayMs(ms);
 }
 
-void tracerForward()
+void tracerStop()
+{
+	motorSetState(JL_LEFT, JL_BRAKE);
+	motorSetState(JL_RIGHT, JL_BRAKE);
+}
+
+void tracerForward(unsigned ms)
 {
 	motorSetState(JL_LEFT, JL_FORWARD);
 	motorSetState(JL_RIGHT, JL_FORWARD);
 	
-	delay_ms(MOTION_WAIT_MS);
-	tracerLineSensorState = lineSensorGet();
+	delayMs(ms);
 }
 
-void tracerBackward()
+void tracerBackward(unsigned ms)
 {
 	motorSetState(JL_LEFT, JL_BACKWARD);
 	motorSetState(JL_RIGHT, JL_BACKWARD);
 	
-	delay_ms(MOTION_WAIT_MS);
-	tracerLineSensorState = lineSensorGet();
-}
-
-uint8_t tracerSensorState;
-
-inline bool tracerAllSensorsOnLine()
-{
-	return tracerSensorState == 0b11111;
+	delayMs(ms);
 }
 
 void tracerGoToNextCross()
 {
-	TRACER_STATE state;
+	while (tracerAllSensorsOnLine(lineSensorGet()))	// 交差点上を抜けるまで
+	{
+		tracerForward(10);
+	}
 	
 	while (true)
 	{
-		motionForward();
-		if (tracerAllSensorsOnLine())
+		int sensorValue = lineSensorGet();
+		
+		if (tracerAllSensorsOnLine(sensorValue))
 			break;
-	}
-
-	while (true)
-	{
-		if (tracerAllSensorsOnLine())
-			break;
+		
+		int offset = tracerGetOffset(sensorValue);
+		if (offset > 0)
+			tracerTurn(JL_RIGHT, offset);
+		if (offset < 0)
+			tracerTurn(JL_LEFT, -offset);
 	}
 }
 
 void tracerTurnInCross(JL_DIRECTION dir)
 {
-	while (true)
-	{
-		motionTurn(dir);
-		if (tracerAllSensorsOnLine())
-			break;
-	}
+	while (tracerAllSensorsOnLine(lineSensorGet()))
+		tracerTurn(dir, 10);
 	
-	while (true)
-	{
-		motionTurn(dir);
-		if (tracerAllSensorsOnLine())
-			break;
-	}
+	while (!tracerAllSensorsOnLine(lineSensorGet()))
+		tracerTurn(dir, 10);
 }
 
 TRACER_STATE tracerState;
