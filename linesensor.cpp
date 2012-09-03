@@ -3,7 +3,7 @@
 
 uint8_t lineSensorThreshold;
 
-void lineSensorReadAnalogValue(uint8_t *array)
+static void lineSensorReadAnalogValue(uint8_t *array)
 {
 	for (unsigned i = 0; i < 5; ++i)
 		array[i] = adConversionGet(i);
@@ -69,7 +69,7 @@ uint8_t lineSensorGet()
 	for (unsigned i = 0; i < 5; ++i)
 	{
 		if (values[i] > lineSensorThreshold)
-			result += 1 << i;
+			result |= 1 << i;
 	}
 	
 	return result;

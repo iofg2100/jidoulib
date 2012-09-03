@@ -18,17 +18,24 @@ uint8_t setBits(uint8_t dst, uint8_t src)
 }
 
 
-void jidou1Init()
+void allInit()
 {
+	gpioInit();
+	usartInit();
+	adConversionInit();
+	motorInit();
 }
 
-void jidou2Init()
+void gpioInit()
 {
+	DDRB = 0b00110110;
+	DDRD = 0b11101100;
 }
 
 void usartInit()
 {
-	UBRR0L = 25;
+	// 19200 Hz
+	UBRR0L = 64;
 	UBRR0H = 0;
 	UCSR0C |= (1 << UCSZ01) + (1 << UCSZ00);
 	UCSR0B |= (1 << RXEN0) + (1 << TXEN0);

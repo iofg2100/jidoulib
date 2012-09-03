@@ -50,15 +50,12 @@ typedef enum
 } JL_MOTOR_STATE;
 
 
-/**
-	自動機1初期化
-*/
-void jidou1Init();
+void allInit();
 
 /**
-	自動機2初期化
+  汎用入出力初期化
 */
-void jidou2Init();
+void gpioInit();
 
 /**
 	USART初期化
