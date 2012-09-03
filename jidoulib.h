@@ -99,6 +99,8 @@ void motorSetDuty(JL_DIRECTION dir, uint8_t ratio);
 */
 void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state);
 
+void motorStart();
+void motorEnd();
 
 /**
 	パルス幅 1.5ms+/-角度分

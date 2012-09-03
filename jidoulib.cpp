@@ -47,11 +47,6 @@ void usartPut(uint8_t data)
 	UDR0 = data;
 }
 
-uint8_t usartGet()
-{
-	
-}
-
 void adConversionInit()
 {
 	ADMUX = 0b01100000;
@@ -80,7 +75,7 @@ void motorInit()
 	// タイマ0の初期化
 	TCCR0B = 0b101;	// クロック/1024Hz
 	TCNT0 = 0;	// カウンタ初期化
-	TCCR0A = 0b10100011; // OCO*を使用;
+	TCCR0A = 0b00000011;
 	
 	OCR0A = 0;
 	OCR0B = 0;
@@ -114,6 +109,16 @@ void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state)
 		default:
 			return;
 	}
+}
+
+void motorStart()
+{
+	TCCR0A |= 0b10100000;	// PWMを出力
+}
+
+void motorEnd()
+{
+	TCCR0A &= 0b00001111;	// PWMを出力しない
 }
 
 void servoInit()
