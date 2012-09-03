@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "jidoulib.h"
 #include "linesensor.h"
 
@@ -51,7 +52,7 @@ void lineSensorSetThreshold()
 	
 	uint8_t diffs[4];	// 差分を計算する
 	for (unsigned i = 0; i < 4; ++i)
-		diffs[i] = values[i+i] - values[i];
+		diffs[i] = abs(values[i+i] - values[i]);
 	
 	unsigned maxIndex;
 	uint8_t maxDiff = get_max(diffs, 4, &maxIndex);	// 差分の最大値とそのインデックスを取得

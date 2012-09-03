@@ -47,6 +47,11 @@ void usartPut(uint8_t data)
 	UDR0 = data;
 }
 
+uint8_t usartGet()
+{
+	
+}
+
 void adConversionInit()
 {
 	ADMUX = 0b01100000;
@@ -65,7 +70,7 @@ uint8_t adConversionGet(uint8_t pin)
 	
 	ADCSRA |= (1 << ADIF) + (1 << ADSC);
 	
-	while (ADCSRA & (1 << ADIF));
+	while (!(ADCSRA & (1 << ADIF)));
 	
 	return ADCH;
 }
