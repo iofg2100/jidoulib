@@ -1,29 +1,31 @@
 #ifndef TRACER_H
 #define TRACER_H
 
-#include "stdint.h"
+#include "jidoulib.h"
+
+enum TracerConstants
+{
+	TracerOffsetFactor = 16,
+	TracerDefaultSpeed = 32,
+	TracerDeltaMs = 0
+};
 
 /**
   ライントレーサを旋回させる
 */
-void tracerTurn(JL_DIRECTION dir, unsigned ms);
+void tracerTurn(JLDirection dir, unsigned ms, uint8_t speed);
 
 int tracerGetOffset(uint8_t sensorValue);
 
-void tracerStop();
+void tracerHalt();
+void tracerBrake();
 
-void tracerForward(unsigned ms);
-void tracerBackward(unsigned ms);
+void tracerForwardTurning(unsigned ms, uint8_t speed, uint8_t delta);
+void tracerForward(unsigned ms, uint8_t speed);
+void tracerBackward(unsigned ms, uint8_t speed);
 
-void tracerGoToNextCross();
-void tracerTurnInCross(JL_DIRECTION dir);
-
-typedef enum
-{
-	TRACER_LINE,
-	TRACER_CROSS,
-	TRACER_CROSS_ROTATING
-} TRACER_STATE;
+void tracerGoToNextCross(unsigned count);
+void tracerTurnInCross(JLDirection dir);
 
 
 #endif

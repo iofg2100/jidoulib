@@ -32,22 +32,22 @@
 /**
 	右or左
 */
-typedef enum
+enum JLDirection
 {
-	JL_RIGHT,
-	JL_LEFT
-} JL_DIRECTION;
+	JLRight,
+	JLLeft
+};
 
 /**
 	モーターの状態
 */
-typedef enum
+enum JLMotorState
 {
-	JL_FORWARD = 0b00,
-	JL_BACKWARD = 0b11,
-	JL_HALT = 0b01,
-	JL_BRAKE = 0b10
-} JL_MOTOR_STATE;
+	JLForward = 0b00,
+	JLBackward = 0b11,
+	JLHalt = 0b01,
+	JLBrake = 0b10
+};
 
 
 void allInit();
@@ -90,14 +90,14 @@ void motorInit();
 	@param dir 右or左
 	@param ratio デューティ比 (0..255)
 */
-void motorSetDuty(JL_DIRECTION dir, uint8_t ratio);
+void motorSetDuty(JLDirection dir, uint8_t ratio);
 
 /**
 	モーターの状態を設定
 	@param dir 右or左
 	@param state モーターの状態
 */
-void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state);
+void motorSetState(JLDirection dir, JLMotorState state);
 
 void motorStart();
 void motorEnd();
@@ -116,7 +116,10 @@ void servoInit();
 	サーボモータの位相を設定
 	@param phase 位相 (0..255)
 */
-void servoSetPhase(uint8_t phase);
+void servoSetPhase(unsigned phase);
+
+void servoSetPulseWidth(unsigned us);
+
 
 void delayMs(unsigned ms);
 

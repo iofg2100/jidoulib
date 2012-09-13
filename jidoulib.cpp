@@ -1,17 +1,14 @@
 
 #include "jidoulib.h"
 
-template <unsigned Width, unsigned Shift>
+template <uint8_t Width, uint8_t Shift>
 uint8_t setBits(uint8_t dst, uint8_t src)
 {
-	uint8_t result = 0;
-	for (unsigned i = 0; i < Width; ++i)
-	{
-		result |= (1 << i);
-	}
+	// bit幅分のマスクを生成
+	uint8_t result = (1 << Width) - 1;
 	result <<= Shift;
 	result = ~result;
-	
+
 	result &= dst;
 	result |= src << Shift;
 	return result;
@@ -24,12 +21,15 @@ void allInit()
 	usartInit();
 	adConversionInit();
 	motorInit();
+	servoInit();
 }
 
 void gpioInit()
 {
 	DDRB = 0b00110110;
 	DDRD = 0b11101100;
+	PORTB = 0;
+	PORTD = 0;
 }
 
 void usartInit()
@@ -81,14 +81,14 @@ void motorInit()
 	OCR0B = 0;
 }
 
-void motorSetDuty(JL_DIRECTION dir, uint8_t ratio)
+void motorSetDuty(JLDirection dir, uint8_t ratio)
 {
 	switch (dir)
 	{
-		case JL_RIGHT:
+		case JLRight:
 			OCR0A = ratio;
 			break;
-		case JL_LEFT:
+		case JLLeft:
 			OCR0B = ratio;
 			break;
 		default:
@@ -96,14 +96,14 @@ void motorSetDuty(JL_DIRECTION dir, uint8_t ratio)
 	}
 }
 
-void motorSetState(JL_DIRECTION dir, JL_MOTOR_STATE state)
+void motorSetState(JLDirection dir, JLMotorState state)
 {
 	switch (dir)
 	{
-		case JL_RIGHT:
+		case JLRight:
 			PORTB = setBits<2, 4>(PORTB, state);
 			break;
-		case JL_LEFT:
+		case JLLeft:
 			PORTD = setBits<2, 2>(PORTD, state);
 			break;
 		default:
@@ -123,18 +123,28 @@ void motorEnd()
 
 void servoInit()
 {
-	// 高速PWM 8bit
-	TCCR1A = 0b10000001;
-	TCCR1B = 0b00001101;
+	// 高速PWM 10bit 分周256
+	// 12.8us per count
+	TCCR1A = 0b10100011;
+	TCCR1B = 0b00001100;
 	
 	TCNT1H = 0;
 	TCNT1L = 0;
+	OCR1AH = 0;
 	OCR1AL = 0;
+	OCR1BH = 0;
+	OCR1BL = 0;
 }
 
-void servoSetPhase(uint8_t phase)
+void servoSetPhase(unsigned phase)
 {
 	OCR1AL = phase;
+	OCR1BL = phase;
+}
+
+void servoSetPulseWidth(unsigned us)
+{
+	servoSetPhase(us * 5 / 64);
 }
 
 void delayMs(unsigned ms)
