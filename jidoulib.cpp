@@ -81,42 +81,24 @@ void motorInit()
 	OCR0B = 0;
 }
 
-void motorSetDuty(JLDirection dir, uint8_t ratio)
+void motorSetDuty(uint8_t leftRatio, uint8_t rightRatio)
 {
-	switch (dir)
-	{
-		case JLRight:
-			OCR0A = ratio;
-			break;
-		case JLLeft:
-			OCR0B = ratio;
-			break;
-		default:
-			break;
-	}
+	OCR0A = rightRatio;
+	OCR0B = leftRatio;
 }
 
-void motorSetState(JLDirection dir, JLMotorState state)
+void motorSetState(JLMotorState leftState, JLMotorState rightState)
 {
-	switch (dir)
-	{
-		case JLRight:
-			PORTB = setBits<2, 4>(PORTB, state);
-			break;
-		case JLLeft:
-			PORTD = setBits<2, 2>(PORTD, state);
-			break;
-		default:
-			return;
-	}
+	PORTB = setBits<2, 4>(PORTB, rightState);
+	PORTD = setBits<2, 2>(PORTD, leftState);
 }
 
-void motorStart()
+void motorEnable()
 {
 	TCCR0A |= 0b10100000;	// PWMを出力
 }
 
-void motorEnd()
+void motorDisable()
 {
 	TCCR0A &= 0b00001111;	// PWMを出力しない
 }
@@ -125,7 +107,7 @@ void servoInit()
 {
 	// 高速PWM 10bit 分周256
 	// 12.8us per count
-	TCCR1A = 0b10100011;
+	TCCR1A = 0b00000011;
 	TCCR1B = 0b00001100;
 	
 	TCNT1H = 0;
@@ -136,15 +118,56 @@ void servoInit()
 	OCR1BL = 0;
 }
 
-void servoSetPhase(unsigned phase)
+void servoEnable(uint8_t index)
 {
-	OCR1AL = phase;
-	OCR1BL = phase;
+	switch (index)
+	{
+		case 0:
+			TCCR1A = setBits<2, 6>(TCCR1A, 0b10);
+			break;
+		case 1:
+			TCCR1A = setBits<2, 4>(TCCR1A, 0b10);
+			break;
+		default:
+			break;
+	}
 }
 
-void servoSetPulseWidth(unsigned us)
+void servoDisable(uint8_t index)
 {
-	servoSetPhase(us * 5 / 64);
+	switch (index)
+	{
+		case 0:
+			TCCR1A = setBits<2, 6>(TCCR1A, 0b00);
+			break;
+		case 1:
+			TCCR1A = setBits<2, 4>(TCCR1A, 0b00);
+			break;
+		default:
+			break;
+	}
+}
+
+void servoSetPhase(uint8_t index, unsigned phase)
+{
+	switch (index)
+	{
+		case 0:
+			OCR1AL = phase;
+			OCR1AH = phase >> 8;
+			break;
+		case 1:
+			OCR1BL = phase;
+			OCR1BH = phase >> 8;
+			break;
+		default:
+			break;
+	}
+}
+
+void servoSetPulseWidth(uint8_t index, unsigned us)
+{
+	servoSetPhase(index, us * 5 / 64);
 }
 
 void delayMs(unsigned ms)

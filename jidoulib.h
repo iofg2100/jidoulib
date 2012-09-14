@@ -5,6 +5,8 @@
 #include <util/delay.h>
 #include <stdint.h>
 
+#define forever while(true)
+
 /**
 	ピン配置
 	
@@ -38,6 +40,10 @@ enum JLDirection
 	JLLeft
 };
 
+/**
+	右を左、左を右にする
+	@param dir 変更する方向
+*/
 inline JLDirection directionSwitch(JLDirection dir)
 {
 	return (dir == JLRight) ? JLLeft : JLRight;
@@ -54,11 +60,13 @@ enum JLMotorState
 	JLBrake = 0b10
 };
 
-
+/**
+	すべての機能の初期化
+*/
 void allInit();
 
 /**
-  汎用入出力初期化
+	汎用入出力初期化
 */
 void gpioInit();
 
@@ -92,20 +100,16 @@ void motorInit();
 
 /**
 	モーターのデューティ比を設定
-	@param dir 右or左
-	@param ratio デューティ比 (0..255)
 */
-void motorSetDuty(JLDirection dir, uint8_t ratio);
+void motorSetDuty(uint8_t leftRatio, uint8_t rightRatio);
 
 /**
 	モーターの状態を設定
-	@param dir 右or左
-	@param state モーターの状態
 */
-void motorSetState(JLDirection dir, JLMotorState state);
+void motorSetState(JLMotorState leftState, JLMotorState rightState);
 
-void motorStart();
-void motorEnd();
+void motorEnable();
+void motorDisable();
 
 /**
 	パルス幅 1.5ms+/-角度分
@@ -117,13 +121,16 @@ void motorEnd();
 */
 void servoInit();
 
+void servoEnable(uint8_t index);
+void servoDisable(uint8_t index);
+
 /**
 	サーボモータの位相を設定
 	@param phase 位相 (0..255)
 */
-void servoSetPhase(unsigned phase);
+void servoSetPhase(uint8_t index, unsigned phase);
 
-void servoSetPulseWidth(unsigned us);
+void servoSetPulseWidth(uint8_t index, unsigned us);
 
 
 void delayMs(unsigned ms);

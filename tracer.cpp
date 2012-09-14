@@ -33,18 +33,15 @@ int tracerGetOffset(uint8_t sensorValue)
 
 void tracerTurn(JLDirection dir, unsigned ms, uint8_t speed)
 {
-	motorSetDuty(JLLeft, speed);
-	motorSetDuty(JLRight, speed);
+	motorSetDuty(speed, speed);
 
 	switch (dir)
 	{
 		case JLLeft:
-			motorSetState(JLLeft, JLBackward);
-			motorSetState(JLRight, JLForward);
+			motorSetState(JLBackward, JLForward);
 			break;
 		case JLRight:
-			motorSetState(JLLeft, JLForward);
-			motorSetState(JLRight, JLBackward);
+			motorSetDuty(JLForward, JLBackward);
 			break;
 		default:
 			break;
@@ -55,45 +52,44 @@ void tracerTurn(JLDirection dir, unsigned ms, uint8_t speed)
 
 void tracerHalt()
 {
-	motorSetState(JLLeft, JLHalt);
-	motorSetState(JLRight, JLHalt);
+	motorSetState(JLHalt, JLHalt);
 }
 
 void tracerBrake()
 {
-	motorSetState(JLLeft, JLBrake);
-	motorSetState(JLRight, JLBrake);
+	motorSetState(JLBrake, JLBrake);
 }
 
 void tracerForward(unsigned ms, uint8_t speed)
 {
-	motorSetDuty(JLLeft, speed);
-	motorSetDuty(JLRight, speed);
-
-	motorSetState(JLLeft, JLForward);
-	motorSetState(JLRight, JLForward);
+	motorSetDuty(speed, speed);
+	
+	motorSetState(JLForward, JLForward);
 
 	delayMs(ms);
 }
 
 void tracerForwardTurning(unsigned ms, uint8_t speed, int delta)
 {
-	motorSetDuty(JLLeft, speed - delta);
-	motorSetDuty(JLRight, speed + delta);
-
-	motorSetState(JLLeft, JLForward);
-	motorSetState(JLRight, JLForward);
+	if (delta > 0)
+	{
+		motorSetDuty(speed - delta, speed);
+	}
+	else
+	{
+		motorSetDuty(speed, speed + delta);
+	}
+	
+	motorSetState(JLForward, JLForward);
 
 	delayMs(ms);
 }
 
 void tracerBackward(unsigned ms, uint8_t speed)
 {
-	motorSetDuty(JLLeft, speed);
-	motorSetDuty(JLRight, speed);
+	motorSetDuty(speed, speed);
 
-	motorSetState(JLLeft, JLBackward);
-	motorSetState(JLRight, JLBackward);
+	motorSetState(JLBackward, JLBackward);
 
 	delayMs(ms);
 }
@@ -101,8 +97,7 @@ void tracerBackward(unsigned ms, uint8_t speed)
 void tracerBrakeFor(unsigned ms)
 {
 	tracerBrake();
-	motorSetDuty(JLLeft, 255);
-	motorSetDuty(JLRight, 255);
+	motorSetDuty(255, 255);
 	delayMs(ms);
 }
 
@@ -145,9 +140,18 @@ bool tracerSideOnLine(JLDirection dir, uint8_t sensor)
 		return tracerLeftOnLine(sensor);
 }
 
+bool tracerOppositeSideOnLine(JLDirection dir, uint8_t sensor)
+{
+	if (dir == JLLeft)
+		return tracerRightOnLine(sensor);
+	else
+		return tracerLeftOnLine(sensor);
+}
+
+
 void tracerGoToNextCross(unsigned count)
 {
-	motorStart();
+	motorEnable();
 	
 	while (count--)
 	{
@@ -188,25 +192,23 @@ void tracerGoToNextCross(unsigned count)
 	
 	tracerBrakeFor(100);
 	
-	motorEnd();
+	motorDisable();
 }
 
 void tracerTurnInCross(JLDirection dir)
 {
-	motorStart();
+	motorEnable();
 	
 	//tracerTurn(dir, 350, TracerDefaultSpeed);
 	
-	dir = directionSwitch(dir);
+	while (tracerOppositeSideOnLine(dir, lineSensorGet()))
+		tracerTurn(dir, TracerDeltaMs, TracerTurningSpeed);
 	
-	while (tracerSideOnLine(dir, lineSensorGet()))
-		tracerTurn(dir, TracerDeltaMs, TracerDefaultSpeed);
-	
-	while (!tracerSideOnLine(dir, lineSensorGet()))
-		tracerTurn(dir, TracerDeltaMs, TracerDefaultSpeed);
+	while (!tracerOppositeSideOnLine(dir, lineSensorGet()))
+		tracerTurn(dir, TracerDeltaMs, TracerTurningSpeed);
 	
 	tracerBrakeFor(100);
 	
-	motorEnd();
+	motorDisable();
 }
 
