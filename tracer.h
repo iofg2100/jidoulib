@@ -5,8 +5,9 @@
 
 enum TracerConstants
 {
-	TracerOffsetFactor = 16,
-	TracerDefaultSpeed = 32,
+	TracerOffsetFactor = 4,
+	TracerDefaultSpeed = 16,
+	TracerTurningSpeed = 16,
 	TracerDeltaMs = 0
 };
 

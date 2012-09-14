@@ -38,6 +38,11 @@ enum JLDirection
 	JLLeft
 };
 
+inline JLDirection directionSwitch(JLDirection dir)
+{
+	return (dir == JLRight) ? JLLeft : JLRight;
+}
+
 /**
 	モーターの状態
 */

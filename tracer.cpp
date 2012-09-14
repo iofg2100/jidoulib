@@ -31,11 +31,6 @@ int tracerGetOffset(uint8_t sensorValue)
 	return onLineCount ? (sum / onLineCount) : 0;
 }
 
-inline bool tracerAllSensorsOnLine(uint8_t sensorValue)
-{
-	return (0b00001 & sensorValue) && (0b10000 & sensorValue);
-}
-
 void tracerTurn(JLDirection dir, unsigned ms, uint8_t speed)
 {
 	motorSetDuty(JLLeft, speed);
@@ -81,7 +76,7 @@ void tracerForward(unsigned ms, uint8_t speed)
 	delayMs(ms);
 }
 
-void tracerForwardTurning(unsigned ms, uint8_t speed, uint8_t delta)
+void tracerForwardTurning(unsigned ms, uint8_t speed, int delta)
 {
 	motorSetDuty(JLLeft, speed - delta);
 	motorSetDuty(JLRight, speed + delta);
@@ -113,13 +108,50 @@ void tracerBrakeFor(unsigned ms)
 
 int tracerPreviousOffset = 0;
 
+inline bool tracerRightOnLine(uint8_t sensor)
+{
+	return 0b00001 & sensor;
+}
+
+inline bool tracerLeftOnLine(uint8_t sensor)
+{
+	return 0b10000 & sensor;
+}
+
+bool tracerOnCross(uint8_t sensor)
+{
+	/*
+	uint8_t mask = 1;
+	uint8_t count = 0;
+	
+	for (uint8_t i = 0; i < 5; ++i)
+	{
+		if (sensor & mask)
+			++count;
+		mask <<= 1;
+	}
+	
+	return count >= 4;
+	*/
+	
+	return tracerLeftOnLine(sensor) && tracerRightOnLine(sensor);
+}
+
+bool tracerSideOnLine(JLDirection dir, uint8_t sensor)
+{
+	if (dir == JLRight)
+		return tracerRightOnLine(sensor);
+	else
+		return tracerLeftOnLine(sensor);
+}
+
 void tracerGoToNextCross(unsigned count)
 {
 	motorStart();
 	
 	while (count--)
 	{
-		while (tracerAllSensorsOnLine(lineSensorGet()))	// 交差点上を抜けるまで
+		while (tracerOnCross(lineSensorGet()))	// 交差点上を抜けるまで
 		{
 			tracerForward(TracerDeltaMs, TracerDefaultSpeed);
 		}
@@ -130,7 +162,7 @@ void tracerGoToNextCross(unsigned count)
 		{
 			uint8_t sensorValue = lineSensorGet();
 			
-			if (tracerAllSensorsOnLine(sensorValue))
+			if (tracerOnCross(sensorValue))
 				break;
 			
 			int offset;
@@ -163,15 +195,15 @@ void tracerTurnInCross(JLDirection dir)
 {
 	motorStart();
 	
-	tracerTurn(dir, 350, TracerDefaultSpeed);
+	//tracerTurn(dir, 350, TracerDefaultSpeed);
 	
-	/*
-	while (tracerAllSensorsOnLine(lineSensorGet()))
+	dir = directionSwitch(dir);
+	
+	while (tracerSideOnLine(dir, lineSensorGet()))
 		tracerTurn(dir, TracerDeltaMs, TracerDefaultSpeed);
 	
-	while (!tracerAllSensorsOnLine(lineSensorGet()))
+	while (!tracerSideOnLine(dir, lineSensorGet()))
 		tracerTurn(dir, TracerDeltaMs, TracerDefaultSpeed);
-		*/
 	
 	tracerBrakeFor(100);
 	
