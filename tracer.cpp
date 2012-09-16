@@ -6,30 +6,7 @@
 
 uint8_t tracerSensorState;
 
-int tracerGetOffset(uint8_t sensorValue)
-{
-	int sum = 0;
-	uint8_t onLineCount = 0;
-	
-	for (uint8_t i = 0; i < 5; ++i)
-	{
-		if (sensorValue & (1 << i))
-		{
-			int delta = int(i) - 2;
-			
-			if (delta == 2)
-				delta = 3;
-			
-			if (delta == -2)
-				delta = -3;
-			
-			sum += TracerOffsetFactor * delta;
-			onLineCount++;
-		}
-	}
 
-	return onLineCount ? (sum / onLineCount) : 0;
-}
 
 void tracerTurn(JLDirection dir, unsigned ms, uint8_t speed)
 {
@@ -41,7 +18,7 @@ void tracerTurn(JLDirection dir, unsigned ms, uint8_t speed)
 			motorSetState(JLBackward, JLForward);
 			break;
 		case JLRight:
-			motorSetDuty(JLForward, JLBackward);
+			motorSetState(JLForward, JLBackward);
 			break;
 		default:
 			break;
@@ -71,6 +48,7 @@ void tracerForward(unsigned ms, uint8_t speed)
 
 void tracerForwardTurning(unsigned ms, uint8_t speed, int delta)
 {
+	/*
 	if (delta > 0)
 	{
 		motorSetDuty(speed - delta, speed);
@@ -78,7 +56,11 @@ void tracerForwardTurning(unsigned ms, uint8_t speed, int delta)
 	else
 	{
 		motorSetDuty(speed, speed + delta);
-	}
+	}*/
+	
+	//debugPrintf("turning offset: %d\n", delta);
+	
+	motorSetDuty(speed - delta, speed + delta);
 	
 	motorSetState(JLForward, JLForward);
 
@@ -149,46 +131,41 @@ bool tracerOppositeSideOnLine(JLDirection dir, uint8_t sensor)
 }
 
 
-void tracerGoToNextCross(unsigned count)
+static void tracerGoToNextCross()
 {
+	while (lineSensorIfOnCross())	// 交差点上を抜けるまで
+	{
+		tracerForward(TracerDeltaMs, TracerDefaultSpeed);
+	}
+			
+	while (true)	// 線上を進む
+	{
+		if (lineSensorIfOnCross())
+			return;
+		
+		int offset = lineSensorGetOffset();
+
+		//debugPrintf("Tracer offset: %d\n", offset);
+
+		tracerForwardTurning(TracerDeltaMs, TracerDefaultSpeed, offset * (TracerOffsetFactor / LineSensorOffsetFactor));
+	}
+	
+	while (lineSensorIfOnCross())	// 交差点上を抜けるまで
+	{
+		tracerForward(TracerDeltaMs, TracerDefaultSpeed);
+	}
+}
+
+void tracerGoToNextCrossFor(unsigned count)
+{
+	debugPrintf("going to next cross\n");
+	
 	motorEnable();
 	
 	while (count--)
-	{
-		while (tracerOnCross(lineSensorGet()))	// 交差点上を抜けるまで
-		{
-			tracerForward(TracerDeltaMs, TracerDefaultSpeed);
-		}
-
-		debugPrintf("Tracer now on line\n");
-		
-		while (true)	// 線上を進む
-		{
-			uint8_t sensorValue = lineSensorGet();
-			
-			if (tracerOnCross(sensorValue))
-				break;
-			
-			int offset;
-			
-			if (sensorValue == 0)
-			{
-				if (tracerPreviousOffset > 0)
-					offset = TracerOffsetFactor * 3;
-				else
-					offset = -TracerOffsetFactor * 3;
-			}
-			else
-			{
-				offset = tracerGetOffset(sensorValue);
-				tracerPreviousOffset = offset;
-			}
-
-			debugPrintf("Tracer offset: %d\n", offset);
-
-			tracerForwardTurning(TracerDeltaMs, TracerDefaultSpeed, offset);
-		}
-	}
+		tracerGoToNextCross();
+	
+	debugPrintf("cross reached\n");
 	
 	tracerBrakeFor(100);
 	
@@ -197,16 +174,27 @@ void tracerGoToNextCross(unsigned count)
 
 void tracerTurnInCross(JLDirection dir)
 {
+	debugPrintf("turning...\n");
+	
 	motorEnable();
 	
-	//tracerTurn(dir, 350, TracerDefaultSpeed);
+	JLDirection opposite = directionSwitch(dir);
 	
-	while (tracerOppositeSideOnLine(dir, lineSensorGet()))
+	if (lineSensorGetIfSideOnLine(opposite) == false)
+	{
+		while (lineSensorGetIfSideOnLine(opposite) == false)
+			tracerTurn(dir, TracerDeltaMs, TracerTurningSpeed);
+	}
+	
+	while (lineSensorGetIfSideOnLine(opposite))
 		tracerTurn(dir, TracerDeltaMs, TracerTurningSpeed);
 	
-	while (!tracerOppositeSideOnLine(dir, lineSensorGet()))
+	while (lineSensorGetIfSideOnLine(opposite) == false)
 		tracerTurn(dir, TracerDeltaMs, TracerTurningSpeed);
 	
+	while (lineSensorGetIfSideOnLine(opposite))
+		tracerTurn(dir, TracerDeltaMs, TracerTurningSpeed);
+		
 	tracerBrakeFor(100);
 	
 	motorDisable();

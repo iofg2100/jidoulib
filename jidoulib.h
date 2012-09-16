@@ -70,6 +70,8 @@ void allInit();
 */
 void gpioInit();
 
+void waitUntilPD4Negated();
+
 /**
 	USART初期化
 */

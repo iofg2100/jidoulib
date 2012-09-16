@@ -3,7 +3,7 @@
 #include "jidoulib.h"
 #include "linesensor.h"
 
-int16_t lineSensorThreshold;
+uint8_t lineSensorThreshold;
 
 static void lineSensorReadAnalogValue(int16_t *array)
 {
@@ -12,7 +12,7 @@ static void lineSensorReadAnalogValue(int16_t *array)
 	for (uint8_t i = 0; i < 5; ++i)
 	{
 		array[i] = adConversionGet(i);
-		debugPrintf(" %d", array[i]);
+		debugPrintf(" %u", array[i]);
 	}
 
 	debugPrintf("\n");
@@ -79,20 +79,42 @@ void lineSensorSetThreshold()
 	debugPrintf("Line seosor threshold: %d\n", lineSensorThreshold);
 }
 
-uint8_t lineSensorGet()
+int lineSensorPreviousOffset;
+
+int lineSensorGetOffset()
 {
-	int16_t values[5];
-	lineSensorReadAnalogValue(values);
-
-	uint8_t result = 0;
+	int sum = 0;
+	uint8_t count = 0;
 	
-	for (uint8_t i = 0; i < 5; ++i)
+	for (uint8_t i = 0; i < 3; ++i)
 	{
-		if (values[i] > lineSensorThreshold)
-			result |= 1 << i;
+		uint8_t value = adConversionGet(i+1);
+		
+		if (value > lineSensorThreshold)
+		{
+			int delta = int(i) - 1;
+			
+			sum += LineSensorOffsetFactor * delta;
+			count++;
+		}
 	}
+	
+	if (count)
+	{
+		int offset = sum / int(count);
+		lineSensorPreviousOffset = offset;
+		return offset;
+	}
+	else
+	{
+		return lineSensorPreviousOffset;
+	}
+}
 
-	return result;
+bool lineSensorGetIfSideOnLine(JLDirection dir)
+{
+	uint8_t value = (dir == JLLeft) ? adConversionGet(4) : adConversionGet(0);
+	return value > lineSensorThreshold;
 }
 
 
