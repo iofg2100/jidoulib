@@ -4,6 +4,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdint.h>
+#include "fixed.h"
 
 #define forever while(true)
 
@@ -149,6 +150,8 @@ public:
 	
 	static void setPhase(uint8_t index, unsigned phase);
 	static void setPulseWidth(uint8_t index, unsigned ms);
+	
+	static void setDegree(uint8_t index, unsigned degree);
 };
 
 

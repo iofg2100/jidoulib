@@ -190,7 +190,12 @@ void Servo::setPhase(uint8_t index, unsigned phase)
 
 void Servo::setPulseWidth(uint8_t index, unsigned us)
 {
-	Servo::setPhase(index, us * 5 / 64);
+	setPhase(index, us * 5 / 64);
+}
+
+void Servo::setDegree(uint8_t index, unsigned degree)
+{
+	setPulseWidth(index, degree * 10 + 1000);	// 1000 ~ 1900
 }
 
 void delayMs(unsigned ms)

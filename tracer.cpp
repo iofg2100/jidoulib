@@ -121,7 +121,9 @@ void Tracer::goToNextCrossFor(unsigned count)
 		count -= 2;
 		while (count--)
 		goToNextCross(DefaultSpeed);
-	
+		
+		brakeFor(100);
+		
 		goToNextCross(SlowSpeed);
 	}
 	

@@ -17,12 +17,17 @@ public:
 	
 	Fixed16(int value)
 	{
-		_d = value * DecimalSize;
+		_d = (int32_t)value * (int32_t)DecimalSize;
+	}
+	
+	Fixed16(unsigned value)
+	{
+		_d = (int32_t)value * (int32_t)DecimalSize;
 	}
 	
 	Fixed16(float value)
 	{
-		_d = value * float(DecimalSize);
+		_d = value * (float)DecimalSize;
 	}
 	
 	int16_t raw() const { return _d; }
@@ -75,6 +80,11 @@ public:
 	}
 	
 	operator int() const
+	{
+		return _d / DecimalSize;
+	}
+	
+	operator unsigned() const
 	{
 		return _d / DecimalSize;
 	}
