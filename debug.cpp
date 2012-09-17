@@ -3,14 +3,14 @@
 #include "debug.h"
 
 
-int debugPutString(const char *str)
+int Debug::putString(const char *str)
 {
 	while (*str)
-		debugPutChar(*str++);
+		putChar(*str++);
 	return 0;
 }
 
-int debugPrintf (
+int Debug::printf(
 	const char* str,	/* Pointer to the format string */
 	...					/* Optional arguments... */
 )
@@ -28,7 +28,7 @@ int debugPrintf (
 		c = *str++;
 		if (c == 0) break;			/* End of string */
 		if (c != '%') {				/* Non escape cahracter */
-			cc = debugPutChar(c);
+			cc = putChar(c);
 			if (cc != JL_EOF) cc = 1;
 			continue;
 		}
@@ -45,11 +45,11 @@ int debugPrintf (
 			f |= 2; c = *str++;
 		}
 		if (c == 's') {				/* Type is string */
-			cc = debugPutString(va_arg(arp, char*));
+			cc = putString(va_arg(arp, char*));
 			continue;
 		}
 		if (c == 'c') {				/* Type is character */
-			cc = debugPutChar(va_arg(arp, int));
+			cc = putChar(va_arg(arp, int));
 			if (cc != JL_EOF) cc = 1;
 			continue;
 		}
@@ -80,7 +80,7 @@ int debugPrintf (
 		if (i && (f & 4)) s[--i] = '-';
 		w = sizeof(s) - 1 - w;
 		while (i && i > w) s[--i] = (f & 1) ? '0' : ' ';
-		cc = debugPutString(&s[i]);
+		cc = putString(&s[i]);
 	}
 	
 	va_end(arp);

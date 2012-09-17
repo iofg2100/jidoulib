@@ -2,26 +2,28 @@
 #define LINESENSOR_H
 
 #include <stdint.h>
+#include "fixed.h"
 #include "jidoulib.h"
 
-enum LineSensorConstants
+class LineSensor
 {
-	LineSensorOffsetFactor = 8
-};
-
-/**
+public:
+	
+	/**
 	right - greater
 	cernter - 0
-*/
-int lineSensorGetOffset();
+	*/	
+	static Fixed16 getOffset();
+	
+	static bool getIfSideOnLine(JLDirection dir);
+	
+	static void setThreshold();
+	
+private:
+	static void readAnalogValue(int16_t *array);
+	
+	static Fixed16 _prevOffset;
+};
 
-bool lineSensorGetIfSideOnLine(JLDirection dir);
-
-inline bool lineSensorIfOnCross()
-{
-	return lineSensorGetIfSideOnLine(JLLeft) || lineSensorGetIfSideOnLine(JLRight);
-}
-
-void lineSensorSetThreshold();
 
 #endif

@@ -5,17 +5,17 @@
 
 uint8_t lineSensorThreshold;
 
-static void lineSensorReadAnalogValue(int16_t *array)
+void LineSensor::readAnalogValue(int16_t *array)
 {
-	debugPrintf("Line sensor value:");
+	Debug::printf("Line sensor value:");
 
 	for (uint8_t i = 0; i < 5; ++i)
 	{
-		array[i] = adConversionGet(i);
-		debugPrintf(" %u", array[i]);
+		array[i] = ADCon::get(i);
+		Debug::printf(" %u", array[i]);
 	}
 
-	debugPrintf("\n");
+	Debug::printf("\n");
 }
 
 inline static void swap(int16_t &v1, int16_t &v2)
@@ -59,10 +59,10 @@ static int16_t get_abs_max(int16_t *array, uint8_t count, uint8_t *maxIndexOut)
 	return max;
 }
 
-void lineSensorSetThreshold()
+void LineSensor::setThreshold()
 {
 	int16_t values[5];
-	lineSensorReadAnalogValue(values);	// AD変換した値を取得
+	readAnalogValue(values);	// AD変換した値を取得
 	bubble_sort(values, 5);
 
 	int16_t diffs[4];	// 差分を計算する
@@ -76,44 +76,42 @@ void lineSensorSetThreshold()
 
 	lineSensorThreshold = values[maxIndex] + maxDiff / 2;	//閾値っぽい値を計算
 
-	debugPrintf("Line seosor threshold: %d\n", lineSensorThreshold);
+	Debug::printf("Line seosor threshold: %d\n", lineSensorThreshold);
 }
 
-int lineSensorPreviousOffset;
+Fixed16 LineSensor::_prevOffset;
 
-int lineSensorGetOffset()
+Fixed16 LineSensor::getOffset()
 {
-	int sum = 0;
+	Fixed16 sum(0);
 	uint8_t count = 0;
 	
 	for (uint8_t i = 0; i < 3; ++i)
 	{
-		uint8_t value = adConversionGet(i+1);
+		uint8_t value = ADCon::get(i+1);
 		
 		if (value > lineSensorThreshold)
 		{
-			int delta = int(i) - 1;
-			
-			sum += LineSensorOffsetFactor * delta;
+			sum += Fixed16(int(i) - 1);
 			count++;
 		}
 	}
 	
 	if (count)
 	{
-		int offset = sum / int(count);
-		lineSensorPreviousOffset = offset;
+		Fixed16 offset = sum / Fixed16(count);
+		_prevOffset = offset;
 		return offset;
 	}
 	else
 	{
-		return lineSensorPreviousOffset;
+		return _prevOffset;
 	}
 }
 
-bool lineSensorGetIfSideOnLine(JLDirection dir)
+bool LineSensor::getIfSideOnLine(JLDirection dir)
 {
-	uint8_t value = (dir == JLLeft) ? adConversionGet(4) : adConversionGet(0);
+	uint8_t value = (dir == JLLeft) ? ADCon::get(4) : ADCon::get(0);
 	return value > lineSensorThreshold;
 }
 

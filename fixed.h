@@ -17,13 +17,15 @@ public:
 	
 	Fixed16(int value)
 	{
-		_d = value / DecimalSize;
+		_d = value * DecimalSize;
 	}
 	
 	Fixed16(float value)
 	{
-		_d = value * ( 1.f / float(DecimalSize));
+		_d = value * float(DecimalSize);
 	}
+	
+	int16_t raw() const { return _d; }
 	
 	Fixed16 operator+(const Fixed16 &x) const
 	{
@@ -74,7 +76,7 @@ public:
 	
 	operator int() const
 	{
-		return _d >> 8;
+		return _d / DecimalSize;
 	}
 	
 	operator float() const

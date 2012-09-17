@@ -6,17 +6,21 @@
 
 #define JL_EOF	0x1A
 
-inline int debugPutChar(char c)
+class Debug
 {
-	usartPut(c);
-	return c;
-}
-
-int debugPutString(const char *str);
-
-int debugPrintf (
+public:
+	static int putChar(char c)
+	{
+		USART::put(c);
+		return c;
+	}
+	
+	static int putString(const char *str);
+	
+	static int printf (
 	const char* str,	/* Pointer to the format string */
 	...					/* Optional arguments... */
-);
+	);
+};
 
 #endif

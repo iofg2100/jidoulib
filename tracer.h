@@ -3,27 +3,36 @@
 
 #include "jidoulib.h"
 
-enum TracerConstants
+class Tracer
 {
-	TracerOffsetFactor = 16,
-	TracerDefaultSpeed = 32,
-	TracerTurningSpeed = 24,
-	TracerDeltaMs = 0
+public:
+	
+	enum TracerConstants
+	{
+		DefaultSpeed = 32,
+		SlowSpeed = 16,
+		TurningSpeed = 24,
+		DeltaMs = 0
+	};
+	
+	static void turn(JLDirection dir, unsigned ms, uint8_t speed);
+
+	static void halt();
+	static void brake();
+
+	static void forwardTurning(unsigned ms, uint8_t speed, int delta);
+	static void forward(unsigned ms, uint8_t speed);
+	static void backward(unsigned ms, uint8_t speed);
+	
+	static void goToNextCrossFor(unsigned count);
+	static void turnInCross(JLDirection dir);
+	
+private:
+	
+	static void trace(uint8_t speed);
+	static void brakeFor(unsigned ms);
+	static void goToNextCross(uint8_t speed);
 };
 
-/**
-  ライントレーサを旋回させる
-*/
-void tracerTurn(JLDirection dir, unsigned ms, uint8_t speed);
-
-void tracerHalt();
-void tracerBrake();
-
-void tracerForwardTurning(unsigned ms, uint8_t speed, int delta);
-void tracerForward(unsigned ms, uint8_t speed);
-void tracerBackward(unsigned ms, uint8_t speed);
-
-void tracerGoToNextCrossFor(unsigned count);
-void tracerTurnInCross(JLDirection dir);
 
 #endif

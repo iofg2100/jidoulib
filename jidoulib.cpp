@@ -1,4 +1,6 @@
 
+#include <avr/interrupt.h>
+#include "debug.h"
 #include "jidoulib.h"
 
 template <uint8_t Width, uint8_t Shift>
@@ -18,10 +20,13 @@ uint8_t setBits(uint8_t dst, uint8_t src)
 void allInit()
 {
 	gpioInit();
-	usartInit();
-	adConversionInit();
-	motorInit();
-	servoInit();
+	USART::init();
+	ADCon::init();
+	Timer0::init();
+	Timer1::init();
+	Timer2::init();
+	
+	sei();
 }
 
 void gpioInit()
@@ -32,7 +37,12 @@ void gpioInit()
 	PORTD = 0;
 }
 
-void usartInit()
+void waitUntilPD4Negated()
+{
+	while (PIND & 0b10000);
+}
+
+void USART::init()
 {
 	// 19200 Hz
 	UBRR0L = 64;
@@ -41,27 +51,27 @@ void usartInit()
 	UCSR0B |= (1 << RXEN0) + (1 << TXEN0);
 }
 
-void usartPut(uint8_t data)
+void USART::put(uint8_t data)
 {
 	while (!(UCSR0A & (1 << UDRE0)));
 	UDR0 = data;
 }
 
-void adConversionInit()
+void ADCon::init()
 {
 	ADMUX = 0b01100000;
 	ADCSRA = 0b10000111;	// ADCイネーブル、プリスケーラ設定
 	ADCSRB = 0;
 }
 
-static void adConversionSetPin(uint8_t pin)
+void ADCon::setPin(uint8_t pin)
 {
 	ADMUX = setBits<4, 0>(ADMUX, pin);
 }
 
-uint8_t adConversionGet(uint8_t pin)
+uint8_t ADCon::get(uint8_t pin)
 {
-	adConversionSetPin(pin);
+	setPin(pin);
 	
 	ADCSRA |= (1 << ADIF) + (1 << ADSC);
 	
@@ -70,7 +80,20 @@ uint8_t adConversionGet(uint8_t pin)
 	return ADCH;
 }
 
-void motorInit()
+void Timer2::init()
+{
+	TCCR2B = 0b10; // クロック1/8
+	TIMSK2 = 1;	// オーバーフロー割り込み有効化	
+}
+
+ISR(TIMER2_OVF_vect) // タイマ0のオーバーフロー
+{
+	GlobalTimer::increment();
+}
+
+uint32_t GlobalTimer::_count = 0;
+
+void Timer0::init()
 {
 	// タイマ0の初期化
 	TCCR0B = 0b101;	// クロック/1024Hz
@@ -81,29 +104,29 @@ void motorInit()
 	OCR0B = 0;
 }
 
-void motorSetDuty(uint8_t leftRatio, uint8_t rightRatio)
+void Motor::setDuty(uint8_t leftRatio, uint8_t rightRatio)
 {
 	OCR0A = rightRatio;
 	OCR0B = leftRatio;
 }
 
-void motorSetState(JLMotorState leftState, JLMotorState rightState)
+void Motor::setState(JLMotorState leftState, JLMotorState rightState)
 {
 	PORTB = setBits<2, 4>(PORTB, rightState);
 	PORTD = setBits<2, 2>(PORTD, leftState);
 }
 
-void motorEnable()
+void Motor::enable()
 {
 	TCCR0A |= 0b10100000;	// PWMを出力
 }
 
-void motorDisable()
+void Motor::disable()
 {
 	TCCR0A &= 0b00001111;	// PWMを出力しない
 }
 
-void servoInit()
+void Timer1::init()
 {
 	// 高速PWM 10bit 分周256
 	// 12.8us per count
@@ -118,7 +141,7 @@ void servoInit()
 	OCR1BL = 0;
 }
 
-void servoEnable(uint8_t index)
+void Servo::enable(uint8_t index)
 {
 	switch (index)
 	{
@@ -133,7 +156,7 @@ void servoEnable(uint8_t index)
 	}
 }
 
-void servoDisable(uint8_t index)
+void Servo::disable(uint8_t index)
 {
 	switch (index)
 	{
@@ -148,7 +171,7 @@ void servoDisable(uint8_t index)
 	}
 }
 
-void servoSetPhase(uint8_t index, unsigned phase)
+void Servo::setPhase(uint8_t index, unsigned phase)
 {
 	switch (index)
 	{
@@ -165,9 +188,9 @@ void servoSetPhase(uint8_t index, unsigned phase)
 	}
 }
 
-void servoSetPulseWidth(uint8_t index, unsigned us)
+void Servo::setPulseWidth(uint8_t index, unsigned us)
 {
-	servoSetPhase(index, us * 5 / 64);
+	Servo::setPhase(index, us * 5 / 64);
 }
 
 void delayMs(unsigned ms)

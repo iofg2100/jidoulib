@@ -72,67 +72,84 @@ void gpioInit();
 
 void waitUntilPD4Negated();
 
-/**
-	USART初期化
-*/
-void usartInit();
-
-/**
-	USRTに一文字送信
-	@param data 送信するデータ
-*/
-void usartPut(uint8_t data);
+class USART
+{
+public:
+	static void init();
+	static void put(uint8_t data);
+};
 
 
-/**
-	AD変換初期化
-*/
-void adConversionInit();
 
-/**
-	AD変換のデータを取得
-	@param pin データを取得するピン
-*/
-uint8_t adConversionGet(uint8_t pin);
+class ADCon
+{
+public:
+	static void init();
+	static uint8_t get(uint8_t pin);
+	
+private:
+	static void setPin(uint8_t pin);
+};
 
-/**
-	モーターの初期化 (タイマ0など)
-*/
-void motorInit();
 
-/**
-	モーターのデューティ比を設定
-*/
-void motorSetDuty(uint8_t leftRatio, uint8_t rightRatio);
+class Timer2
+{
+public:
+	static void init();
+};
 
-/**
-	モーターの状態を設定
-*/
-void motorSetState(JLMotorState leftState, JLMotorState rightState);
+class GlobalTimer
+{
+public:
+	
+	static uint32_t count() { return _count; }
+	static void increment() { _count++; }
+	
+private:
+	static uint32_t _count;
+};
 
-void motorEnable();
-void motorDisable();
+
+
+class Timer0
+{
+public:
+	
+	static void init();
+};
+
+
+
+class Motor
+{
+public:
+	static void setDuty(uint8_t left, uint8_t right);
+	static void setState(JLMotorState left, JLMotorState right);
+	
+	static void enable();
+	static void disable();
+};
+
+class Timer1
+{
+public:
+	static void init();	
+};
+
 
 /**
 	パルス幅 1.5ms+/-角度分
 	バルス周期 20ms
 */
-
-/**
-	サーボモータの初期化
-*/
-void servoInit();
-
-void servoEnable(uint8_t index);
-void servoDisable(uint8_t index);
-
-/**
-	サーボモータの位相を設定
-	@param phase 位相 (0..255)
-*/
-void servoSetPhase(uint8_t index, unsigned phase);
-
-void servoSetPulseWidth(uint8_t index, unsigned us);
+class Servo
+{
+public:
+	static void enable(uint8_t index);
+	static void disable(uint8_t index);
+	
+	static void setPhase(uint8_t index, unsigned phase);
+	static void setPulseWidth(uint8_t index, unsigned ms);
+};
 
 
 void delayMs(unsigned ms);
