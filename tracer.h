@@ -11,7 +11,7 @@ public:
 	{
 		DefaultSpeed = 32,
 		SlowSpeed = 16,
-		TurningSpeed = 24,
+		TurningSpeed = 20,
 		DeltaMs = 0
 	};
 	
@@ -27,11 +27,17 @@ public:
 	static void goToNextCrossFor(unsigned count);
 	static void turnInCross(JLDirection dir);
 	
+	static void setFastSpeed(int speed) { _fastSpeed = speed; }
+	static void setSlowSpeed(int speed) { _slowSpeed = speed; }
+	static void setTurningSpeed(int speed) { _turningSpeed = speed; }
+	
 private:
 	
 	static void trace(uint8_t speed);
 	static void brakeFor(unsigned ms);
 	static void goToNextCross(uint8_t speed);
+	
+	static int _fastSpeed, _slowSpeed, _turningSpeed;
 };
 
 

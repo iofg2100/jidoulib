@@ -93,21 +93,36 @@ private:
 };
 
 
+
 class Timer2
 {
 public:
 	static void init();
 };
 
+
+typedef void (*JLCallback)();
+
 class GlobalTimer
 {
 public:
 	
+	enum
+	{
+		MaxCallbackCount = 8
+	};
+	
 	static uint32_t count() { return _count; }
-	static void increment() { _count++; }
+	
+	static void onTimerOverflow() { _count++; }
+	
+	static void addCallback(uint32_t interval, JLCallback callback);
 	
 private:
 	static uint32_t _count;
+	//static uint8_t _callbackCount;
+	//static uint32_t _callbackIntervals[MaxCallbackCount];
+	//static JLCallback _callbacks[MaxCallbackCount];
 };
 
 

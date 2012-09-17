@@ -3,7 +3,19 @@
 #include "jidoulib.h"
 #include "linesensor.h"
 
-uint8_t lineSensorThreshold;
+uint8_t LineSensor::_threshold;
+int16_t LineSensor::_values[5];
+
+void LineSensor::initialize()
+{
+	setThreshold();
+	//GlobalTimer::addCallback(10, onTimerEvent);
+}
+
+void LineSensor::onTimerEvent()
+{
+	readAnalogValue(_values);
+}
 
 void LineSensor::readAnalogValue(int16_t *array)
 {
@@ -74,9 +86,9 @@ void LineSensor::setThreshold()
 	uint8_t maxIndex;
 	int16_t maxDiff = get_abs_max(diffs, 4, &maxIndex);	// 差分の最大値とそのインデックスを取得
 
-	lineSensorThreshold = values[maxIndex] + maxDiff / 2;	//閾値っぽい値を計算
+	_threshold = values[maxIndex] + maxDiff / 2;	//閾値っぽい値を計算
 
-	Debug::printf("Line seosor threshold: %d\n", lineSensorThreshold);
+	Debug::printf("Line seosor threshold: %d\n", _threshold);
 }
 
 Fixed16 LineSensor::_prevOffset;
@@ -90,7 +102,7 @@ Fixed16 LineSensor::getOffset()
 	{
 		uint8_t value = ADCon::get(i+1);
 		
-		if (value > lineSensorThreshold)
+		if (value > _threshold)
 		{
 			sum += Fixed16(int(i) - 1);
 			count++;
@@ -112,7 +124,7 @@ Fixed16 LineSensor::getOffset()
 bool LineSensor::getIfSideOnLine(JLDirection dir)
 {
 	uint8_t value = (dir == JLLeft) ? ADCon::get(4) : ADCon::get(0);
-	return value > lineSensorThreshold;
+	return value > _threshold;
 }
 
 

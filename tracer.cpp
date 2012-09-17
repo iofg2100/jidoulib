@@ -107,24 +107,24 @@ void Tracer::goToNextCrossFor(unsigned count)
 	
 	if (count == 1)
 	{
-		goToNextCross(SlowSpeed);
+		goToNextCross(_slowSpeed);
 	}
 	else if (count == 2)
 	{
-		goToNextCross(SlowSpeed);
-		goToNextCross(SlowSpeed);
+		goToNextCross(_slowSpeed);
+		goToNextCross(_slowSpeed);
 	}
 	else
 	{
-		goToNextCross(SlowSpeed);
+		goToNextCross(_slowSpeed);
 		
 		count -= 2;
 		while (count--)
-		goToNextCross(DefaultSpeed);
+		goToNextCross(_fastSpeed);
 		
 		brakeFor(100);
 		
-		goToNextCross(SlowSpeed);
+		goToNextCross(_slowSpeed);
 	}
 	
 	Debug::printf("cross reached\n");
@@ -144,16 +144,20 @@ void Tracer::turnInCross(JLDirection dir)
 	//JLDirection opposite = dir;
 	
 	while (LineSensor::getIfSideOnLine(opposite))
-		turn(dir, DeltaMs, TurningSpeed);
+		turn(dir, DeltaMs, _turningSpeed);
 	
 	while (LineSensor::getIfSideOnLine(opposite) == false)
-		turn(dir, DeltaMs, TurningSpeed);
+		turn(dir, DeltaMs, _turningSpeed);
 	
 	while (LineSensor::getIfSideOnLine(opposite))
-		turn(dir, DeltaMs, TurningSpeed);
+		turn(dir, DeltaMs, _turningSpeed);
 	
 	brakeFor(100);
 	
 	Motor::disable();
 }
+
+int Tracer::_fastSpeed = 32;
+int Tracer::_slowSpeed = 16;
+int Tracer::_turningSpeed = 20;
 

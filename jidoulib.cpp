@@ -82,14 +82,42 @@ uint8_t ADCon::get(uint8_t pin)
 
 void Timer2::init()
 {
-	TCCR2B = 0b10; // クロック1/8
+	TCCR2B = 0b10; // クロック1/8  50ns * 8 = 400ns
 	TIMSK2 = 1;	// オーバーフロー割り込み有効化	
 }
 
-ISR(TIMER2_OVF_vect) // タイマ0のオーバーフロー
+ISR(TIMER2_OVF_vect) // タイマ2のオーバーフロー 0.4us * 256 = 102.4us ~= 0.1ms
 {
-	GlobalTimer::increment();
+	GlobalTimer::onTimerOverflow();
 }
+
+/*
+void GlobalTimer::onTimerOverflow()
+{
+	_count++;
+	
+	for (uint8_t i = 0; i < _callbackCount; ++i)
+	{
+		if (_count % _callbackIntervals[i] == 0)
+			_callbacks[i]();
+	}
+}
+
+void GlobalTimer::addCallback(uint32_t interval, JLCallback callback)
+{
+	if (_callbackCount == MaxCallbackCount)
+		return;
+	
+	_callbackIntervals[_callbackCount] = interval;
+	_callbacks[_callbackCount] = callback;
+	
+	_callbackCount++;
+}
+
+uint8_t GlobalTimer::_callbackCount = 0;
+uint32_t GlobalTimer::_callbackIntervals[GlobalTimer::MaxCallbackCount];
+JLCallback GlobalTimer::_callbacks[GlobalTimer::MaxCallbackCount];
+*/
 
 uint32_t GlobalTimer::_count = 0;
 
