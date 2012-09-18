@@ -89,10 +89,12 @@ void Tracer::trace(uint8_t speed)
 
 void Tracer::goToNextCross(uint8_t speed)
 {
-	while (LineSensor::getIfSideOnLine(JLLeft) || LineSensor::getIfSideOnLine(JLRight))
+	Debug::printf("tracing to next cross\n");
+	
+	while (LineSensor::getIfEitherSiedOnLine())
 		trace(speed);
 	
-	while ((LineSensor::getIfSideOnLine(JLLeft) && LineSensor::getIfSideOnLine(JLRight)) == false)
+	while (LineSensor::getIfBothSideOnLine() == false)
 		trace(speed);
 }
 
@@ -100,8 +102,6 @@ void Tracer::goToNextCrossFor(unsigned count)
 {
 	if (count == 0)
 		return;
-	
-	Debug::printf("going to next cross\n");
 	
 	Motor::enable();
 	
@@ -120,14 +120,12 @@ void Tracer::goToNextCrossFor(unsigned count)
 		
 		count -= 2;
 		while (count--)
-		goToNextCross(_fastSpeed);
+			goToNextCross(_fastSpeed);
 		
 		brakeFor(100);
 		
 		goToNextCross(_slowSpeed);
 	}
-	
-	Debug::printf("cross reached\n");
 	
 	brakeFor(100);
 	
@@ -136,28 +134,40 @@ void Tracer::goToNextCrossFor(unsigned count)
 
 void Tracer::turnInCross(JLDirection dir)
 {
-	Debug::printf("turning...\n");
-	
 	Motor::enable();
 	
 	JLDirection opposite = directionSwitch(dir);
 	//JLDirection opposite = dir;
 	
+	Debug::printf("starting turning\n");
 	while (LineSensor::getIfSideOnLine(opposite))
 		turn(dir, DeltaMs, _turningSpeed);
 	
+	Debug::printf("off line\n");
 	while (LineSensor::getIfSideOnLine(opposite) == false)
 		turn(dir, DeltaMs, _turningSpeed);
 	
+	Debug::printf("on line again\n");
 	while (LineSensor::getIfSideOnLine(opposite))
 		turn(dir, DeltaMs, _turningSpeed);
+	
+	/*
+	while (LineSensor::getIfBothSideOnLine())
+		turn(dir, DeltaMs, _turningSpeed);
+	
+	while (LineSensor::getIfBothSideOnLine() == false)
+		turn(dir, DeltaMs, _turningSpeed);
+	
+	while (LineSensor::getIfBothSideOnLine())
+		turn(dir, DeltaMs, _turningSpeed);
+	*/
 	
 	brakeFor(100);
 	
 	Motor::disable();
 }
 
-int Tracer::_fastSpeed = 32;
+int Tracer::_fastSpeed = 50;
 int Tracer::_slowSpeed = 16;
 int Tracer::_turningSpeed = 20;
 

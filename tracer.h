@@ -9,9 +9,6 @@ public:
 	
 	enum TracerConstants
 	{
-		DefaultSpeed = 32,
-		SlowSpeed = 16,
-		TurningSpeed = 20,
 		DeltaMs = 0
 	};
 	
@@ -30,6 +27,10 @@ public:
 	static void setFastSpeed(int speed) { _fastSpeed = speed; }
 	static void setSlowSpeed(int speed) { _slowSpeed = speed; }
 	static void setTurningSpeed(int speed) { _turningSpeed = speed; }
+	
+	static int fastSpeed() { return _fastSpeed; }
+	static int slowSpeed() { return _slowSpeed; }
+	static int turningSpeed () { return _turningSpeed; }
 	
 private:
 	

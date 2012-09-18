@@ -9,6 +9,11 @@ class LineSensor
 {
 public:
 	
+	enum
+	{
+		SideLowPassCount = 1
+	};
+	
 	static void initialize();
 	
 	/**
@@ -18,18 +23,24 @@ public:
 	static Fixed16 getOffset();
 	
 	static bool getIfSideOnLine(JLDirection dir);
+	static bool getIfEitherSiedOnLine() { return getIfSideOnLine(JLLeft) || getIfSideOnLine(JLRight); }
+	static bool getIfBothSideOnLine() { return getIfSideOnLine(JLLeft) && getIfSideOnLine(JLRight); }
 	
 	static void setThreshold();
 	static void onTimerEvent();
 	
-	static int16_t value(int index) { return _values[index]; }
+	static int value(int index) { return _values[index]; }
 	
 private:
-	static void readAnalogValue(int16_t *array);
+	static bool jidgeWidhThreshold(int value);
 	
-	static int16_t _values[5];
+	static void readAnalogValue(int *array);
+	
+	static int _values[5];
 	static Fixed16 _prevOffset;
-	static uint8_t _threshold;
+	static int _threshold;
+	
+	static int _sideOnLineCount[2];
 };
 
 

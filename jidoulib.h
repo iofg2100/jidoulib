@@ -64,14 +64,15 @@ enum JLMotorState
 /**
 	すべての機能の初期化
 */
-void allInit();
+void jlInit();
 
-/**
-	汎用入出力初期化
-*/
-void gpioInit();
-
-void waitUntilPD4Negated();
+class GPIO
+{
+public:
+	static void init();
+	static void waitUntilButtonNegated();
+	static void setLEDOn(bool on);
+};
 
 class USART
 {

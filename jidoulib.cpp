@@ -17,29 +17,43 @@ uint8_t setBits(uint8_t dst, uint8_t src)
 }
 
 
-void allInit()
+void jlInit()
 {
-	gpioInit();
+	// initialize devices
+	GPIO::init();
 	USART::init();
 	ADCon::init();
 	Timer0::init();
 	Timer1::init();
 	Timer2::init();
 	
-	sei();
+	sei();	// enable interruption
 }
 
-void gpioInit()
+void GPIO::init()
 {
 	DDRB = 0b00110110;
 	DDRD = 0b11101100;
 	PORTB = 0;
 	PORTD = 0;
+	
+	setLEDOn(false);
 }
 
-void waitUntilPD4Negated()
+void GPIO::waitUntilButtonNegated()
 {
+	while ((PIND & 0b10000) == false);
+	delayMs(1);
 	while (PIND & 0b10000);
+	delayMs(1);	// prevent jittering effect
+}
+
+void GPIO::setLEDOn(bool on)
+{
+	if (on)
+		PORTD &= 0b01111111;
+	else
+		PORTD &= 0b10000000;
 }
 
 void USART::init()
