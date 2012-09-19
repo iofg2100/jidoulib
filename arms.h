@@ -12,7 +12,7 @@ public:
 		ServoUpDown = 0,
 		ServoHoldRelease = 1,
 		
-		PulseWidthHold = 2000,
+		PulseWidthHold = 2100,
 		PulseWidthRelease = 1000,
 		PulseWidthUp = 1500,
 		PulseWidthDown = 1000

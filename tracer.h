@@ -10,7 +10,7 @@ public:
 	enum TracerConstants
 	{
 		DeltaMs = 0,
-		MinumumTimeCount = 1000
+		MinumumTimeCount = 2000
 	};
 	
 	static void turn(JLDirection dir, unsigned ms, uint8_t speed);
