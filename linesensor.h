@@ -11,7 +11,7 @@ public:
 	
 	enum
 	{
-		SideLowPassCount = 1
+		SideLowPassCount = 4
 	};
 	
 	static void initialize();

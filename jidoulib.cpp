@@ -42,9 +42,9 @@ void GPIO::init()
 
 void GPIO::waitUntilButtonNegated()
 {
-	while ((PIND & 0b10000) == false);
+	while (isPushButtonOn() == false);
 	delayMs(1);
-	while (PIND & 0b10000);
+	while (isPushButtonOn());
 	delayMs(1);	// prevent jittering effect
 }
 
@@ -53,7 +53,7 @@ void GPIO::setLEDOn(bool on)
 	if (on)
 		PORTD &= 0b01111111;
 	else
-		PORTD &= 0b10000000;
+		PORTD |= 0b10000000;
 }
 
 void USART::init()
@@ -96,11 +96,16 @@ uint8_t ADCon::get(uint8_t pin)
 
 void Timer2::init()
 {
+	// WGM = 0b010
+	
+	//TCCR2A = 0b10;
 	TCCR2B = 0b10; // クロック1/8  50ns * 8 = 400ns
-	TIMSK2 = 1;	// オーバーフロー割り込み有効化	
+	TIMSK2 = 1;	// オーバーフロー割り込み有効化
+	
+	OCR2A = 250;	// 0.4us * 250 = 0.1ms
 }
 
-ISR(TIMER2_OVF_vect) // タイマ2のオーバーフロー 0.4us * 256 = 102.4us ~= 0.1ms
+ISR(TIMER2_OVF_vect)
 {
 	GlobalTimer::onTimerOverflow();
 }

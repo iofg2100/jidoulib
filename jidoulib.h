@@ -70,6 +70,10 @@ class GPIO
 {
 public:
 	static void init();
+	
+	static bool isPushButtonOn() { return PIND & 0b10000; }
+	static bool isCollisionButtonOn() { return PINB & 1; }
+	
 	static void waitUntilButtonNegated();
 	static void setLEDOn(bool on);
 };
