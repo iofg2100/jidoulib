@@ -174,7 +174,6 @@ public:
 	static void setDegree(uint8_t index, unsigned degree);
 };
 
-
 void delayMs(unsigned ms);
 
 #endif

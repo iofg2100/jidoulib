@@ -20,7 +20,7 @@ public:
 	right - greater
 	cernter - 0
 	*/
-	static Fixed16 getOffset();
+	static Fixed16 getOffset(bool *ok = 0);
 	
 	static bool getIfSideOnLine(JLDirection dir);
 	static bool getIfEitherSiedOnLine() { return getIfSideOnLine(JLLeft) || getIfSideOnLine(JLRight); }
@@ -40,7 +40,8 @@ private:
 	static Fixed16 _prevOffset;
 	static int _threshold;
 	
-	static int _sideOnLineCount[2];
+	static int _sideLowPassCount[2];
+	static bool _sideLowPassState[2];
 };
 
 

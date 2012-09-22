@@ -91,7 +91,11 @@ uint8_t ADCon::get(uint8_t pin)
 	
 	while (!(ADCSRA & (1 << ADIF)));
 	
-	return ADCH;
+	uint8_t value = ADCH;
+	
+	//Debug::printf("ADC %u: %u\n", pin, value);
+	
+	return value;
 }
 
 void Timer2::init()

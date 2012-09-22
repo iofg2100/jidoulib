@@ -18,26 +18,46 @@ public:
 		PulseWidthDown = 1000
 	};
 	
-	static void initialize();
-	static void hold();
-	static void release();
+	static void enable() { Servo::enable(ServoUpDown); Servo::enable(ServoHoldRelease); }
 	
-private:
+	static void hold() { Servo::setPulseWidth(ServoHoldRelease, PulseWidthHold); }
+	static void release() { Servo::setPulseWidth(ServoHoldRelease, PulseWidthRelease); }
+	static void up() { Servo::setPulseWidth(ServoUpDown, PulseWidthUp); }
+	static void down() { Servo::setPulseWidth(ServoUpDown, PulseWidthDown); }
 	
-	static void servoHold() { Servo::setPulseWidth(ServoHoldRelease, PulseWidthHold); }
-	static void servoRelease() { Servo::setPulseWidth(ServoHoldRelease, PulseWidthRelease); }
-	static void servoUp() { Servo::setPulseWidth(ServoUpDown, PulseWidthUp); }
-	static void servoDown() { Servo::setPulseWidth(ServoUpDown, PulseWidthDown); }
-	
+	static void disable();
 };
 
 class BasketArms
 {
 public:
 	
-	static void initialize();
-	static void hold();
-	static void release();	
+	enum
+	{
+		ServoHoldRelease0 = 0,
+		ServoHoldRelease1 = 1,
+		
+		PulseWidthHold0 = 1000,
+		PulseWidthRelease0 = 1800,
+		PulseWidthHold1 = 2250,
+		PulseWidthRelease1 = 1000
+	};
+	
+	static void enable()
+	{
+		Servo::enable(ServoHoldRelease0);
+		Servo::enable(ServoHoldRelease1);
+	}
+	static void hold()
+	{
+		Servo::setPulseWidth(ServoHoldRelease0, PulseWidthHold0);
+		Servo::setPulseWidth(ServoHoldRelease1, PulseWidthHold1);
+	}
+	static void release()
+	{
+		Servo::setPulseWidth(ServoHoldRelease0, PulseWidthRelease0);
+		Servo::setPulseWidth(ServoHoldRelease1, PulseWidthRelease1);
+	}
 };
 
 #endif

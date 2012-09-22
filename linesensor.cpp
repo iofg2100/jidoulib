@@ -83,13 +83,14 @@ void LineSensor::setThreshold()
 	uint8_t maxIndex;
 	int maxDiff = get_abs_max(diffs, 4, &maxIndex);	// 差分の最大値とそのインデックスを取得
 
-	_threshold = values[maxIndex] + maxDiff * 3 / 4;	//閾値っぽい値を計算
+	//_threshold = values[maxIndex] + maxDiff * 3 / 4;	//閾値っぽい値を計算
+	_threshold = values[maxIndex] + maxDiff / 2;	//閾値っぽい値を計算
 
 	Debug::printf("Line seosor threshold: %d\n", _threshold);
 }
 
 
-Fixed16 LineSensor::getOffset()
+Fixed16 LineSensor::getOffset(bool *ok)
 {
 	Fixed16 sum(0);
 	uint8_t count = 0;
@@ -109,10 +110,17 @@ Fixed16 LineSensor::getOffset()
 	{
 		Fixed16 offset = sum / Fixed16(count);
 		_prevOffset = offset;
+		
+		if (ok)
+			*ok = true;
+		
 		return offset;
 	}
 	else
 	{
+		if (ok)
+			*ok = false;
+		
 		return _prevOffset;
 	}
 }
@@ -123,22 +131,23 @@ bool LineSensor::getIfSideOnLine(JLDirection dir)
 	
 	bool on = value > _threshold;
 	
-	if (on)
-		_sideOnLineCount[dir]++;
+	if (on != _sideLowPassState[dir])
+		_sideLowPassCount[dir]++;
 	else
-		_sideOnLineCount[dir] = 0;
+		_sideLowPassCount[dir] = 0;
 	
-	if (_sideOnLineCount[dir] >= SideLowPassCount)
+	if (_sideLowPassCount[dir] >= SideLowPassCount)
 	{
-		_sideOnLineCount[dir] = SideLowPassCount;
-		return true;
+		_sideLowPassCount[dir] = 0;
+		_sideLowPassState[dir] = !(_sideLowPassState[dir]);
 	}
 	
-	return false;
+	return _sideLowPassState[dir];
 }
 
 int LineSensor::_threshold;
 int LineSensor::_values[5];
 Fixed16 LineSensor::_prevOffset;
-int LineSensor::_sideOnLineCount[2] = {0, 0};
+int LineSensor::_sideLowPassCount[2] = {0, 0};
+bool LineSensor::_sideLowPassState[2] = {false, false};
 

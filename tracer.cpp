@@ -90,7 +90,15 @@ void Tracer::brakeFor(unsigned ms)
 
 void Tracer::trace(uint8_t speed)
 {
-	Fixed16 offset = LineSensor::getOffset();
+	bool ok;
+	Fixed16 offset = LineSensor::getOffset(&ok);
+	
+	/*
+	if (ok == false)
+	{
+		Tracer::brake();
+		forever;
+	}*/
 
 	forwardTurning(DeltaMs, speed, offset * Fixed16(speed / 2));
 }
@@ -137,10 +145,10 @@ void Tracer::goBackToPrevCross(uint8_t speed)
 	Debug::printf("tracing back to previous cross\n");
 	
 	while (LineSensor::getIfEitherSiedOnLine())
-		traceBack(speed);
+		backward(DeltaMs, speed);
 	
 	while (LineSensor::getIfBothSideOnLine() == false)
-		traceBack(speed);
+		backward(DeltaMs, speed);
 }
 
 void Tracer::goToNextCrossFor(unsigned count)
